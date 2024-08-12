@@ -135,7 +135,9 @@ if __name__ == "__main__":
             r_list.append(bisection(h/1000000, m)[0])
 
         # encode the mode with largest reward
+        aver = sum(h) / N
         m_max = m_list[np.argmax(r_list)]
+        rate_val = np.max(r_list) / rate[i_idx][0]
         mem.encode(h, m_list[np.argmax(r_list)])
         # the main code for DROO training ends here
 
