@@ -45,7 +45,7 @@ def plot_rate(rate_his, rolling_intv=50):
     df = pd.DataFrame(rate_his)
 
 
-    mpl.style.use('seaborn')
+    # mpl.style.use('seaborn')
     fig, ax = plt.subplots(figsize=(15, 8))
 #    rolling_intv = 20
 
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     '''
 
     N = 10                       # number of users
-    n = 30000                    # number of time frames
+    n = 10000                    # number of time frames
     K = N                        # initialize K = N
     decoder_mode = 'OP'          # the quantization mode could be 'OP' (Order-preserving) or 'KNN'
     Memory = 1024                # capacity of memory structure
@@ -106,9 +106,11 @@ if __name__ == "__main__":
     k_idx_his = []
     K_his = []
     for i in range(n):
+        if i == 4000:
+            print('ok')
         if i % (n//10) == 0:
-           print("%0.1f"%(i/n))
-        if i> 0 and i % Delta == 0:
+            print("%0.1f"%(i/n))
+        if i > 0 and i % Delta == 0:
             # index counts from 0
             if Delta > 1:
                 max_k = max(k_idx_his[-Delta:-1]) +1;
@@ -133,11 +135,9 @@ if __name__ == "__main__":
             r_list.append(bisection(h/1000000, m)[0])
 
         # encode the mode with largest reward
+        m_max = m_list[np.argmax(r_list)]
         mem.encode(h, m_list[np.argmax(r_list)])
         # the main code for DROO training ends here
-
-
-
 
         # the following codes store some interested metrics for illustrations
         # memorize the largest reward
@@ -149,7 +149,6 @@ if __name__ == "__main__":
         K_his.append(K)
         mode_his.append(m_list[np.argmax(r_list)])
 
-
     total_time=time.time()-start_time
     mem.plot_cost()
     plot_rate(rate_his_ratio)
@@ -159,8 +158,8 @@ if __name__ == "__main__":
     print('Average time per channel:%s'%(total_time/n))
 
     # save data into txt
-    save_to_txt(k_idx_his, "k_idx_his.txt")
-    save_to_txt(K_his, "K_his.txt")
-    save_to_txt(mem.cost_his, "cost_his.txt")
-    save_to_txt(rate_his_ratio, "rate_his_ratio.txt")
-    save_to_txt(mode_his, "mode_his.txt")
+    # save_to_txt(k_idx_his, "k_idx_his.txt")
+    # save_to_txt(K_his, "K_his.txt")
+    # save_to_txt(mem.cost_his, "cost_his.txt")
+    # save_to_txt(rate_his_ratio, "rate_his_ratio.txt")
+    # save_to_txt(mode_his, "mode_his.txt")

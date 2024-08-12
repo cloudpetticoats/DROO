@@ -107,9 +107,9 @@ class MemoryDNN:
         m_pred = self.model(h)
         m_pred = m_pred.detach().numpy()
 
-        if mode is 'OP':
+        if mode == 'OP':
             return self.knm(m_pred[0], k)
-        elif mode is 'KNN':
+        elif mode == 'KNN':
             return self.knn(m_pred[0], k)
         else:
             print("The action selection must be 'OP' or 'KNN'")
@@ -136,7 +136,7 @@ class MemoryDNN:
 
     def knn(self, m, k = 1):
         # list all 2^N binary offloading actions
-        if len(self.enumerate_actions) is 0:
+        if len(self.enumerate_actions) == 0:
             import itertools
             self.enumerate_actions = np.array(list(map(list, itertools.product([0, 1], repeat=self.net[0]))))
 
