@@ -84,7 +84,6 @@ class MemoryDNN:
         h_train = torch.Tensor(batch_memory[:, 0: self.net[0]])
         m_train = torch.Tensor(batch_memory[:, self.net[0]:])
 
-
         # train the DNN
         optimizer = optim.Adam(self.model.parameters(), lr=self.lr,betas = (0.09,0.999),weight_decay=0.0001) 
         criterion = nn.BCELoss()
