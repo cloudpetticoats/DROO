@@ -136,6 +136,7 @@ if __name__ == "__main__":
 
         # encode the mode with largest reward
         aver = sum(h) / N
+        k_idx = np.argmax(r_list)
         m_max = m_list[np.argmax(r_list)]
         rate_val = np.max(r_list) / rate[i_idx][0]
         mem.encode(h, m_list[np.argmax(r_list)])
