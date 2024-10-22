@@ -140,8 +140,8 @@ if __name__ == "__main__":
         h = channel[i_idx,:]
 
         # the action selection must be either 'OP' or 'KNN'
-        # m_list = mem.decode(h, K, decoder_mode)
-        m_list = np.array([[1 for _ in range(20)]])
+        m_list = mem.decode(h, K, decoder_mode)
+        # m_list = np.array([[1 for _ in range(20)]])
 
         r_list = []
         allocation_res_list = []
@@ -160,13 +160,13 @@ if __name__ == "__main__":
         episode_end_time = time.time()
         # the main code for DROO training ends here
 
-        rate_total, local_rate_list, edge_rate_list = sum_rate_single_WD(h, m_max, allocation_res_list[np.argmax(r_list)])
-
-        if i == 5000:
-            print(h)
-            single_timeframe_amount_data(local_rate_list, edge_rate_list, m_max,
-                                         T_length - episode_end_time + episode_begin_time)
-
+        # rate_total, local_rate_list, edge_rate_list = sum_rate_single_WD(h, m_max, allocation_res_list[np.argmax(r_list)])
+        #
+        # if i == 5000:
+        #     print(h)
+        #     single_timeframe_amount_data(local_rate_list, edge_rate_list, m_max,
+        #                                  T_length - episode_end_time + episode_begin_time)
+        #
 
         # the following codes store some interested metrics for illustrations
         # memorize the largest reward
@@ -194,4 +194,4 @@ if __name__ == "__main__":
     # save_to_txt(mem.cost_his, "cost_his.txt")
     # save_to_txt(rate_his_ratio, "rate_his_ratio.txt")
     # save_to_txt(mode_his, "mode_his.txt")
-    save_to_txt(norm_amount_data, "normalization_amount_data_20_DROO.txt")
+    # save_to_txt(norm_amount_data, "normalization_amount_data_20_DROO.txt")
