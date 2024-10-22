@@ -11,6 +11,20 @@ import scipy.io as sio                     # import scipy.io for .mat file I/
 import time
 
 
+def plot_(data):
+    import matplotlib.pyplot as plt
+    plt.plot(range(len(data)), data)
+    plt.ylabel('norm_amount_data')
+    plt.xlabel('Time Frames')
+    plt.show()
+
+
+def save_to_txt(rate_his, file_path):
+    with open(file_path, 'w') as f:
+        for rate in rate_his:
+            f.write("%s \n" % rate)
+
+
 def plot_gain( gain_his):
     import matplotlib.pyplot as plt
     import pandas as pd
@@ -19,8 +33,8 @@ def plot_gain( gain_his):
     gain_array = np.asarray(gain_his)
     df = pd.DataFrame(gain_his)
     
-    
-    mpl.style.use('seaborn')
+
+    # mpl.style.use('seaborn')
     fig, ax = plt.subplots(figsize=(15,8))
     rolling_intv = 20
 
@@ -160,8 +174,10 @@ if __name__ == "__main__":
     print(M0)
     
     # test all data
-    K = [10, 20, 30]                     # number of users
-    N = 1000                     # number of channel
+    # K = [10, 20, 30]                     # number of users
+    K = [20]
+    N = 10000                     # number of channel
+    T_length = 0.5
     
     
     for k in K:
@@ -173,7 +189,9 @@ if __name__ == "__main__":
         gain_his = []
         gain_his_ratio = []
         mode_his = []
+        norm_amount_data = []
         for i in range(N):
+            episode_begin_time = time.time()
             if i % (N//10) == 0:
                print("%0.1f"%(i/N))
                
@@ -183,11 +201,12 @@ if __name__ == "__main__":
             
             # the CD method
             gain0, M0 = cd_method(h)
-            
+            episode_end_time = time.time()
     
             # memorize the largest reward
             gain_his.append(gain0)
             gain_his_ratio.append(gain_his[-1] / gain[i_idx][0])
+            norm_amount_data.append(gain_his[-1]*(T_length-episode_end_time+episode_begin_time)/gain[i_idx][0]/T_length)
     
             mode_his.append(M0)
                 
@@ -198,6 +217,9 @@ if __name__ == "__main__":
         
     
         plot_gain(gain_his_ratio)
+        plot_(norm_amount_data)
+
+        save_to_txt(norm_amount_data, "normalization_amount_data_20_CD.txt")
         
             
         print("gain/max ratio: ", sum(gain_his_ratio)/N)

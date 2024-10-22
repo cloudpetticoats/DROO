@@ -13,7 +13,7 @@
 import scipy.io as sio                     # import scipy.io for .mat file I/
 import numpy as np                         # import numpy
 
-from memory import MemoryDNN
+from memoryPyTorch import MemoryDNN
 from optimization import bisection
 from main import plot_rate, save_to_txt
 
@@ -27,7 +27,7 @@ def WD_off(channel, N_active, N):
         # set the (N-active-1)th channel to close to 0
         # since all channels in each time frame are randomly generated, we turn of the WD with greatest index
         channel[:,N_active] = channel[:, N_active] / 1000000 # a programming trick,such that we can recover its channel gain once the WD is turned on again.
-        print("    The %dth WD is turned on."%(N_active +1))
+        print("    The %dth WD is turned off."%(N_active +1))
             
     # update the expected maximum computation rate
     rate = sio.loadmat('./data/data_%d' %N_active)['output_obj']
@@ -97,32 +97,43 @@ if __name__ == "__main__":
     
     for i in range(n):
         # for dynamic number of WDs
+        #         if episode_i == 4000:
+        #             env.turn_off(num=3)
+        #         elif episode_i == 5000:
+        #             env.turn_off(num=1)
+        #         elif episode_i == 6000 or episode_i == 7000:
+        #             env.turn_on(num=1)
+        #         elif episode_i == 8000:
+        #             env.turn_on(num=2)
+        if i ==0.4*n:
+            print("At time frame %d:"%(i))
+            channel, rate, N_active = WD_off(channel, N_active, N)
+            channel, rate, N_active = WD_off(channel, N_active, N)
+            channel, rate, N_active = WD_off(channel, N_active, N)
+        if i ==0.5*n:
+            print("At time frame %d:"%(i))
+            channel, rate, N_active = WD_off(channel, N_active, N)
         if i ==0.6*n:
             print("At time frame %d:"%(i))
-            channel, rate, N_active = WD_off(channel, N_active, N)
-        if i ==0.65*n:
-            print("At time frame %d:"%(i))
-            channel, rate, N_active = WD_off(channel, N_active, N)
+            channel, rate, N_active = WD_on(channel, N_active, N)
         if i ==0.7*n:
             print("At time frame %d:"%(i))
-            channel, rate, N_active = WD_off(channel, N_active, N)
-        if i ==0.75*n:
-            print("At time frame %d:"%(i))
-            channel, rate, N_active = WD_off(channel, N_active, N)
+            channel, rate, N_active = WD_on(channel, N_active, N)
         if i ==0.8*n:
             print("At time frame %d:"%(i))
             channel, rate, N_active = WD_on(channel, N_active, N)
-        if i ==0.85*n:
-            print("At time frame %d:"%(i))
             channel, rate, N_active = WD_on(channel, N_active, N)
-        if i ==0.9*n:
-            print("At time frame %d:"%(i))
-            channel, rate, N_active = WD_on(channel, N_active, N)
-            channel, rate, N_active = WD_on(channel, N_active, N)
-        if i == 0.95*n:
-            print("At time frame %d:"%(i))
-            channel, rate, N_active = WD_off(channel, N_active, N)
-            channel, rate, N_active = WD_off(channel, N_active, N)
+        # if i ==0.85*n:
+        #     print("At time frame %d:"%(i))
+        #     channel, rate, N_active = WD_on(channel, N_active, N)
+        # if i ==0.9*n:
+        #     print("At time frame %d:"%(i))
+        #     channel, rate, N_active = WD_on(channel, N_active, N)
+        #     channel, rate, N_active = WD_on(channel, N_active, N)
+        # if i == 0.95*n:
+        #     print("At time frame %d:"%(i))
+        #     channel, rate, N_active = WD_off(channel, N_active, N)
+        #     channel, rate, N_active = WD_off(channel, N_active, N)
                 
         if i % (n//10) == 0:
            print("%0.1f"%(i/n))
@@ -168,11 +179,11 @@ if __name__ == "__main__":
     print('Average time per channel:%s'%(total_time/n))
     
     # save data into txt
-    save_to_txt(k_idx_his, "k_idx_his.txt")
-    save_to_txt(K_his, "K_his.txt")
-    save_to_txt(mem.cost_his, "cost_his.txt")
+    # save_to_txt(k_idx_his, "k_idx_his.txt")
+    # save_to_txt(K_his, "K_his.txt")
+    # save_to_txt(mem.cost_his, "cost_his.txt")
     save_to_txt(rate_his_ratio, "rate_his_ratio.txt")
-    save_to_txt(mode_his, "mode_his.txt")
+    # save_to_txt(mode_his, "mode_his.txt")
 
 
     

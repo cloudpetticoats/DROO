@@ -32,8 +32,17 @@ import numpy as np                         # import numpy
 # Implementated based on the PyTorch 
 from memoryPyTorch import MemoryDNN
 from optimization import bisection
+from utils import sum_rate_single_WD, single_timeframe_amount_data, combine_allocation
 
 import time
+
+
+def plot_(data):
+    import matplotlib.pyplot as plt
+    plt.plot(range(len(data)), data)
+    plt.ylabel('norm_amount_data')
+    plt.xlabel('Time Frames')
+    plt.show()
 
 
 def plot_rate(rate_his, rolling_intv=50):
@@ -68,12 +77,13 @@ if __name__ == "__main__":
         Adaptive K is implemented. K = max(K, K_his[-memory_size])
     '''
 
-    N = 10                       # number of users
-    n = 10000                    # number of time frames
+    N = 20                       # number of users
+    n = 5100                  # number of time frames
     K = N                        # initialize K = N
     decoder_mode = 'OP'          # the quantization mode could be 'OP' (Order-preserving) or 'KNN'
     Memory = 1024                # capacity of memory structure
     Delta = 32                   # Update interval for adaptive K
+    T_length = 0.5
 
     print('#user = %d, #channel=%d, K=%d, decoder = %s, Memory = %d, Delta = %d'%(N,n,K,decoder_mode, Memory, Delta))
     # Load data
@@ -105,7 +115,9 @@ if __name__ == "__main__":
     mode_his = []
     k_idx_his = []
     K_his = []
+    norm_amount_data = []
     for i in range(n):
+        episode_begin_time = time.time()
         if i == 4000:
             print('ok')
         if i % (n//10) == 0:
@@ -128,10 +140,14 @@ if __name__ == "__main__":
         h = channel[i_idx,:]
 
         # the action selection must be either 'OP' or 'KNN'
-        m_list = mem.decode(h, K, decoder_mode)
+        # m_list = mem.decode(h, K, decoder_mode)
+        m_list = np.array([[1 for _ in range(20)]])
 
         r_list = []
+        allocation_res_list = []
         for m in m_list:
+            rate_total, xx, aa = bisection(h / 1000000, m)
+            allocation_res_list.append(combine_allocation(xx, aa, m))
             r_list.append(bisection(h/1000000, m)[0])
 
         # encode the mode with largest reward
@@ -140,12 +156,23 @@ if __name__ == "__main__":
         m_max = m_list[np.argmax(r_list)]
         rate_val = np.max(r_list) / rate[i_idx][0]
         mem.encode(h, m_list[np.argmax(r_list)])
+
+        episode_end_time = time.time()
         # the main code for DROO training ends here
+
+        rate_total, local_rate_list, edge_rate_list = sum_rate_single_WD(h, m_max, allocation_res_list[np.argmax(r_list)])
+
+        if i == 5000:
+            print(h)
+            single_timeframe_amount_data(local_rate_list, edge_rate_list, m_max,
+                                         T_length - episode_end_time + episode_begin_time)
+
 
         # the following codes store some interested metrics for illustrations
         # memorize the largest reward
         rate_his.append(np.max(r_list))
         rate_his_ratio.append(rate_his[-1] / rate[i_idx][0])
+        norm_amount_data.append(rate_his[-1]*(T_length-episode_end_time+episode_begin_time)/rate[i_idx][0]/T_length)
         # record the index of largest reward
         k_idx_his.append(np.argmax(r_list))
         # record K in case of adaptive K
@@ -155,6 +182,7 @@ if __name__ == "__main__":
     total_time=time.time()-start_time
     mem.plot_cost()
     plot_rate(rate_his_ratio)
+    plot_(norm_amount_data)
 
     print("Averaged normalized computation rate:", sum(rate_his_ratio[-num_test: -1])/num_test)
     print('Total time consumed:%s'%total_time)
@@ -166,3 +194,4 @@ if __name__ == "__main__":
     # save_to_txt(mem.cost_his, "cost_his.txt")
     # save_to_txt(rate_his_ratio, "rate_his_ratio.txt")
     # save_to_txt(mode_his, "mode_his.txt")
+    save_to_txt(norm_amount_data, "normalization_amount_data_20_DROO.txt")
